@@ -12,38 +12,45 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 def split_single_and_multiple(text):
-    if "多选题" in text:
-        parts = text.split("多选题", maxsplit=1)
-        return parts[0], parts[1]
+    # split text into 3 parts: title, single-choice, and multiple-choice
+    if "选题" in text:
+        parts = text.split("选题", maxsplit=2)
+        # don't need parts[0]. It's title
+        return parts[1], parts[2]
     else:
         return text, ""
 
 
 def parse_questions(text, multiple=False):
-    # 切分每一道题：以“数字.”开头的作为题目开始
-    raw_questions = re.split(r'\n?\d+\.\s+', text)
     questions = []
-
-    for block in raw_questions:
+    # split text using "number. Question"
+    blocks = re.split(r'\n?\d+\.\s+Question', text)
+    
+    for block in blocks:
+        # skip empty blocks
         if not block.strip():
             continue
 
-        # 提取题干（直到 A. 出现）
-        q_match = re.search(r'^(.*?)(?=\n?[A-F]\.)', block, re.DOTALL)
-        if not q_match:
-            continue
-        question_text = q_match.group(1).strip()
-
-        # 提取所有选项
-        option_matches = re.findall(r'([A-F])\.\s*(.*?)\s*(?=(?:[A-F]\.|答案[:：]))', block, re.DOTALL)
-        options = {key: val.strip() for key, val in option_matches}
-
-        # 提取答案
+        # get answers
         answer_match = re.search(r'答案[:：]\s*([A-F]+)', block)
         if not answer_match:
             continue
-        raw_answer = answer_match.group(1).strip()
-        answer = list(raw_answer) if multiple else raw_answer
+        answer_text = answer_match.group(1).strip()
+        answer = list(answer_text) if multiple else answer_text
+
+        # splite by "答案：...", keep the first part(it's question body)
+        question_body = re.split(r'答案[:：][A-F]+\s*', block)[0]
+
+        # get options
+        option_matches = re.findall(r'([A-F])\.\s*(.*?)(?=\n[A-F]\.|\n答案[:：]|$)', question_body, re.DOTALL)
+        options = {opt: txt.strip().replace("\n", " ") for opt, txt in sorted(option_matches)}
+
+        # get question body before A
+        if option_matches:
+            first_option_letter = option_matches[0][0]
+            question_text = question_body.split(f"{first_option_letter}.", 1)[0].strip().replace("\n", " ")
+        else:
+            question_text = ""
 
         questions.append({
             "question": question_text,
@@ -60,6 +67,9 @@ def save_json(data, filename):
 
 def process_pdf_to_json(pdf_path):
     text = extract_text_from_pdf(pdf_path)
+    # print(text[:1000])
+    # return
+    
     single_text, multiple_text = split_single_and_multiple(text)
     
     single_questions = parse_questions(single_text, multiple=False)
