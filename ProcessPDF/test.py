@@ -19,7 +19,7 @@ def split_single_and_multiple(text):
         return text, ""
 
 
-def parse_questions_flexible(text, multiple=False):
+def parse_questions(text, multiple=False):
     # 切分每一道题：以“数字.”开头的作为题目开始
     raw_questions = re.split(r'\n?\d+\.\s+', text)
     questions = []
@@ -67,3 +67,6 @@ def process_pdf_to_json(pdf_path):
     
     save_json(single_questions, "single_choice.json")
     save_json(multiple_questions, "multiple_choice.json")
+
+if __name__ == "__main__":
+    process_pdf_to_json("questions.pdf")
