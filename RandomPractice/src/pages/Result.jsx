@@ -7,11 +7,17 @@ function Result() {
   const navigate = useNavigate();
   const { score, total, wrong } = location.state || {};
 
+  const handleRestart = () => {
+    localStorage.removeItem("exam");
+    localStorage.removeItem("answers");
+    navigate("/");
+  };
+
   if (!location.state) {
     return (
       <Container sx={{ mt: 6, textAlign: "center" }}>
         <Typography variant="h6" gutterBottom>No records.</Typography>
-        <Button variant="contained" onClick={() => navigate("/")}>Back Home</Button>
+        <Button variant="contained" onClick={handleRestart}>Back Home</Button>
       </Container>
     );
   }
@@ -55,7 +61,7 @@ function Result() {
       )}
 
       <Box sx={{ mt: 4, textAlign: "center" }}>
-        <Button variant="contained" onClick={() => navigate("/")}>Restart</Button>
+        <Button variant="contained" onClick={handleRestart}>Restart</Button>
       </Box>
     </Container>
   );

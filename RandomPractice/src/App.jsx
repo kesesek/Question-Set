@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Container, Typography, Box, Radio, RadioGroup, FormControlLabel, Checkbox, FormGroup } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -14,11 +14,26 @@ export default function App() {
 
   const shuffled = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
+  useEffect(() => {
+    const savedExam = localStorage.getItem("exam");
+    const savedAnswers = localStorage.getItem("answers");
+    if (savedExam) {
+      setExam(JSON.parse(savedExam));
+      setStage("ready");
+    }
+    if (savedAnswers) {
+      setAnswers(JSON.parse(savedAnswers));
+    }
+  }, []);
+
   function generateExam() {
     const single = shuffled(singleChoice).slice(0, 50);
     const multiple = shuffled(multipleChoice).slice(0, 15);
     const full = [...single, ...multiple];
     setExam(full);
+    localStorage.setItem("exam", JSON.stringify(full));
+    localStorage.removeItem("answers");
+    setAnswers({});
     setStage("ready");
   }
 
@@ -27,7 +42,9 @@ export default function App() {
   }
 
   function handleAnswer(index, selected) {
-    setAnswers((prev) => ({ ...prev, [index]: selected }));
+    const newAnswers = { ...answers, [index]: selected };
+    setAnswers(newAnswers);
+    localStorage.setItem("answers", JSON.stringify(newAnswers));
   }
 
   function submitExam() {
@@ -46,6 +63,8 @@ export default function App() {
         else wrong.push({ index: i, question: q, yourAnswer: user });
       }
     });
+    localStorage.removeItem("exam");
+    localStorage.removeItem("answers");
     navigate("/result", { state: { score: correct, total: exam.length, wrong } });
   }
 
