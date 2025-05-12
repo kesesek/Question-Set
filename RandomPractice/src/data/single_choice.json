@@ -6570,16 +6570,6 @@
     "answer": "D"
   },
   {
-    "question": "#868*A global company runs its workloads on AWS. The company's application uses Amazon S3 buckets across AWS Regions for sensitive data storage and analysis.The company stores millions of objects in multiple S3 buckets daily.The company wants to identify all S3 buckets that are not versioning-enabled.Which solution will meet these requirements?",
-    "options": {
-      "A": "缺失A答案，待补齐",
-      "B": "Enable IAM Access Analyzer for S3 to identify all S3 buckets that are not versioning-enabled across Regions.",
-      "C": "Enable AWS Config to identify all S3 buckets that are not versioning-enabled across Regions.",
-      "D": "Create an S3 Multi-Region Access Point to identify all S3 buckets that are not versioning-enabled across Regions."
-    },
-    "answer": "B"
-  },
-  {
     "question": "#869A company wants to enhance its e-commerce order-processing application that is deployed on AWS.The application must process each order exactly once without affecting the customer experience during unpredictable traffic surges.Which solution will meet these requirements?",
     "options": {
       "A": "Create an Amazon Simple Queue Service (Amazon SQS) FIFO queue. Put all the orders in the SQS queue. Configure an AWS Lambda function as the target to process the orders.",
